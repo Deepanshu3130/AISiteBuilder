@@ -4,19 +4,44 @@ import React, { useEffect, useReducer, useRef } from 'react'
  import Loader from './Loader'
 import { Send, Loader2 } from "lucide-react";
 import { useState } from "react";
+import api from '../configs/axios';
+import { toast } from 'sonner';
 const SideBar = ({isMenuOpen , project , setProjects , isGenerating , setIsGenerating}) => {
     const [message, setMessage] = useState("");
-            const handleSend = () => {
-        if (!message.trim() || isGenerating) return;
 
-        // simulate sending (replace with your API logic)
-        setIsGenerating(true);
+    const fetchProject = async()=>{
+        try{
+            const {data} = await api.get(`/api/user/project/${project.id}`)
+            setProjects(data.Project)
+        }catch(e){
+            toast.error(e?.response?.data?.message || e.message);
+        }
+    }
 
-        setTimeout(() => {
-            setIsGenerating(false);
-        }, 2000);
 
-        setMessage("");
+    const handleRevision = async(e) => {
+      e.preventDefault();
+                let interveral 
+        // if (!message.trim() || isGenerating) return;
+        try{
+            setIsGenerating(true);
+            interveral = setInterval(() => {
+                fetchProject();
+            }, 10000 );
+
+            const {data} = await api.post(`/api/project/revision/${project.id}` , {message:message})
+            fetchProject();  //why ?? again
+
+            toast.success(data.message);
+            setInput('');
+            clearInterval(interveral)
+            setIsGenerating(false)
+
+        } catch(e) {
+           setIsGenerating(false)
+           toast.error(e?.response?.data?.message || e.message);
+           clearInterval(interveral)
+        }
    };
   const messageRef = useRef(null)
   useEffect(()=>{
@@ -42,13 +67,13 @@ const SideBar = ({isMenuOpen , project , setProjects , isGenerating , setIsGener
                     return <ChatMessage key={index} msg={item} />;
                     }
 
-                    return (
+                    {/* return (
                     <VersionCard
                         key={index}
                         ver={item}
                         project={project}
                     />
-                    );
+                    ); */}
                 })}
                 <div ref={messageRef}></div>
             </div>
@@ -71,14 +96,14 @@ const SideBar = ({isMenuOpen , project , setProjects , isGenerating , setIsGener
             onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                handleSend();
+                handleRevision();
                 }
             }}
             />
 
             {/* SEND BUTTON */}
             <button
-            onClick={handleSend}
+            onClick={handleRevision}
             disabled={isGenerating || !message.trim()}
             className={`flex items-center justify-center w-9 h-9 rounded-lg
              transition

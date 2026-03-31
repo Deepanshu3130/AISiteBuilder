@@ -1,6 +1,6 @@
 import { use } from "react"
-import prisma from "../lib/prisma"
-import openai from "../config/openAi"
+import prisma from "../lib/prisma.js"
+import openai from "../config/openAi.js"
 
 
 
@@ -79,7 +79,7 @@ export const createUserProject = async(req , res)=>{
         //ehance user promt
         const promtEnhanceRes = await openai.chat.completions.create(
             {
-                model :'z-ai/glm-4.5-air:free',
+                model :'kwaipilot/kat-coder-pro',
                 messages :[
                     {
                         role: "system",
@@ -123,7 +123,7 @@ export const createUserProject = async(req , res)=>{
 
          // generating the code for the given promt
          const codeGenerationResponse = await openai.chat.completions.create({
-                model :'z-ai/glm-4.5-air:free',
+                model :'kwaipilot/kat-coder-pro',
                 messages :[
                     {
                         role: "system",
@@ -160,6 +160,23 @@ export const createUserProject = async(req , res)=>{
          })
 
          const code = codeGenerationResponse.choices[0].message.content || '';
+
+         
+                  if(!code){
+                     await prisma.conversation.create({
+                         data:{
+                             role :'assistant',
+                             content:"unable to generate the code , please try again",
+                             projectId: project.id
+                         }
+                     })
+                      await prisma.user.update({
+                     where: {id:userId},
+                     data:{credits : {increment:5}}
+                     })
+                     return;
+                  }
+         
 
          // create the version for the projects
          const version = await prisma.version.create({
@@ -209,6 +226,7 @@ export const createUserProject = async(req , res)=>{
 
 
 export const getUserProjects = async(req , res)=>{
+    console.log("in the server ")
     try{
         const userId = req.userId
         if(!userId){
@@ -217,6 +235,8 @@ export const getUserProjects = async(req , res)=>{
             })
         }
         const {projectId} = req.params
+        console.log("finding....");
+        
 
         const Project = await prisma.websiteProject.findUnique(
             {
@@ -233,8 +253,10 @@ export const getUserProjects = async(req , res)=>{
                 }
             }
         )
+        console.log("found...");
+        
 
-        res.json({Project})
+        return res.json({ Project });
     }catch(error){
         console.log(error.code || error.message);
         res.status(500).json({

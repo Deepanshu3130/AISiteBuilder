@@ -1,14 +1,36 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.svg'
 import { Navigate } from 'react-router-dom'
 import { authClient } from '../lib/auth-client'
 import {UserButton} from '@daveyplate/better-auth-ui'
+import api from '../configs/axios'
+import { toast} from 'sonner'
 
 const Navbar = () => {
   const[menuOpen , setMenuOpen] = useState(false)
   const navigate = useNavigate()
-  const {data: session } = authClient.useSession()   // read about the sessions
+  const {data: session } = authClient.useSession()   // read about the sessions 
+  const [credits , setCredits] = useState(0);
+
+  const getCredits = async()=>{
+    try{
+      console.log("api call has been made")
+      const {data} = await api.get('/api/user/credits');
+      setCredits(data.credits)
+      console.log(data.credits)
+    }catch(e){
+      toast.error(e?.response?.data?.message || e.message);
+    }
+  }
+
+  useEffect(()=>{
+    
+    if(session?.user){
+      getCredits()
+      
+    }
+  },[session?.user])  // once try this with the empty dependency // and check out how everything is mapped like how the req is going and better is handeling different users and all 
   return (
     <>
        <nav className="z-50 flex items-center justify-between w-full py-4 px-4 md:px-16 lg:px-24 xl:px-32 backdrop-blur border-b text-white border-slate-800">
@@ -32,7 +54,14 @@ const Navbar = () => {
               Get started
             </button>
 ):(
+  <>
+  <button className='bg-white/10 px-5 py-1.5 text-xs sm:text-sm border text-gray-200 rounded-full '>
+    Credits: 
+    <span className='text-indigo-300'> {credits}</span>
+ </button>
 <UserButton size='icon'/>
+  </>
+
 )
 
             }

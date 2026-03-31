@@ -5,22 +5,43 @@ import hostinger from "../assets/hostinger.svg"
 import vercel from "../assets/vercel.svg"
 import youtube from "../assets/youtube.svg"
 import {Loader2Icon} from 'lucide-react'
+import { authClient } from '../lib/auth-client'
+import { toast} from 'sonner'
+import api from '../configs/axios'
+import { useNavigate } from 'react-router-dom'
 
 
 function Home() {
   const [input, setInput] = useState();
   const[loading , setLoading] = useState(false)
-  function onSubmitHandler(e){
-    e.preventDefault();
-    setLoading(true)
-    console.log('button clicked');
-    setTimeout(()=>{
-      setLoading(false);
-      setInput("")
+  const {data : session} = authClient.useSession();
+  const navigate = useNavigate()
 
-    },3000)
-       
+
+  const onSubmitHandler = async(e)=>{
+     e.preventDefault();
+     try{
+      if(!session?.user){
+        return toast.error('please sign in to create a project')
+      }else if(!input.trim()){
+        return toast.error('please enter a message')
+      }
+      setLoading(true);
+
+      const {data} = await api.post('/api/user/project' ,
+        {
+          initial_prompt : input
+        }
+      )
+      setLoading(false)
+      navigate(`/projects/${data.projectId}`)
+     }catch(e){
+      setLoading(false);
+      toast.error(e?.response?.data?.message || e.message);
+     }
   }
+
+
   return (
 
     <div className="min-h-screen bg-gradient-to-b from-black to-purple-950 flex flex-col items-center justify-center text-white px-4">

@@ -69,7 +69,7 @@
 // export default ProjectCard
 import { Link } from "react-router-dom";
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project , deleteProject }) => {
 
   return (
     <div  className="
@@ -98,7 +98,8 @@ const ProjectCard = ({ project }) => {
       <div className="relative w-full h-40 overflow-hidden bg-black
       border-b border-white/10 ">
          
-        {project.current_code? <iframe
+        {project.current_code? 
+        <iframe
           title={project.name}
           srcDoc={project.current_code}
           className="

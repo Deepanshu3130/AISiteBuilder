@@ -83,7 +83,7 @@ const CommunityCard = ({ project }) => {
 
             {/* PREVIEW BUTTON */}
             <div className="px-3 py-1.5 bg-indigo-600 rounded-full text-sm hover:bg-white/20 transition text-shadow-black" >
-             { project.user}
+             { project.user.name}
             </div>
 
             {/* OPEN BUTTON */}

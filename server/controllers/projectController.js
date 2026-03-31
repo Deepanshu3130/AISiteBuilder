@@ -1,6 +1,6 @@
 //controller for revision of the code 
-import openai from "../config/openAi"
-import prisma from "../lib/prisma"
+import openai from "../config/openAi.js"
+import prisma from "../lib/prisma.js"
 
 export const makeRevision = async(req , res)=>{
     const userId = req.userId
@@ -46,7 +46,7 @@ export const makeRevision = async(req , res)=>{
 
         // ehanced prompt
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model:'z-ai/glm-4.5-air:free',
+            model:'kwaipilot/kat-coder-pro',
             messages :[
                 {
                     role:'system',
@@ -86,7 +86,7 @@ export const makeRevision = async(req , res)=>{
         //generate the website code
 
         const codeGenerationResponse = await openai.chat.completions.create({
-                model :'z-ai/glm-4.5-air:free',
+                model :'kwaipilot/kat-coder-pro',
                 messages :[
                     {
                         role: "system",
@@ -110,6 +110,24 @@ export const makeRevision = async(req , res)=>{
                 ]
          })
          const code = codeGenerationResponse.choices[0].message.content || ''
+
+         if(!code){
+            await prisma.conversation.create({
+                data:{
+                    role :'assistant',
+                    content:"unable to generate the code , please try again",
+                    projectId
+                }
+            })
+             await prisma.user.update({
+            where: {id:userId},
+            data:{credits : {increment:5}}
+            })
+            return;
+         }
+
+
+
          const version = await prisma.version.create({
             data:{
                 code : code.replace(/```[a-z]*\n?/gi, '')
@@ -262,6 +280,8 @@ export const deleteProject = async (req, res) => {
 
 
 export const getProjectPreview = async (req, res) => {
+    console.log("in the project preview controller")
+    
   try {
     const userId = req.userId;
     const { projectId } = req.params;
