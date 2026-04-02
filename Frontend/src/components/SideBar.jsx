@@ -6,13 +6,13 @@ import { Send, Loader2 } from "lucide-react";
 import { useState } from "react";
 import api from '../configs/axios';
 import { toast } from 'sonner';
-const SideBar = ({isMenuOpen , project , setProjects , isGenerating , setIsGenerating}) => {
+const SideBar = ({isMenuOpen , project , setProject , isGenerating , setIsGenerating}) => {
     const [message, setMessage] = useState("");
 
     const fetchProject = async()=>{
         try{
             const {data} = await api.get(`/api/user/project/${project.id}`)
-            setProjects(data.Project)
+            setProject(data.Project)
         }catch(e){
             toast.error(e?.response?.data?.message || e.message);
         }

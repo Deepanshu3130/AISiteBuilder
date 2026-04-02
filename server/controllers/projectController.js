@@ -46,7 +46,7 @@ export const makeRevision = async(req , res)=>{
 
         // ehanced prompt
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model:'kwaipilot/kat-coder-pro',
+            model:'stepfun/step-3.5-flash:free',
             messages :[
                 {
                     role:'system',
@@ -86,7 +86,7 @@ export const makeRevision = async(req , res)=>{
         //generate the website code
 
         const codeGenerationResponse = await openai.chat.completions.create({
-                model :'kwaipilot/kat-coder-pro',
+                model :'nvidia/nemotron-3-super-120b-a12b:free',
                 messages :[
                     {
                         role: "system",

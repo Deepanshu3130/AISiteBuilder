@@ -6,7 +6,7 @@ import { auth } from "./lib/auth.js";
 import userRouter from "./routes/userRoutes.js";
 import projectRouter from "./routes/projectsRoutes.js";
 
-const port =3000;
+const port = process.env.PORT || 4000;
 
 const app = express();
 const corsOptions ={
