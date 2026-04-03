@@ -41,7 +41,7 @@ const Pricing = () => {
           })
         }
        </div>
-      <p className='text-center text-slate-500 max-w-[30%] mx-auto mt-10'> Project Creation/Revision consume 5 creadits .You can purchase more credits to create more projects</p>
+      <p className='text-center text-slate-500 max-w-[30%] mx-auto mt-10'> Project Creation/Revision consume 5 credits .You can purchase more credits to create more projects</p>
 
 
     </div>
